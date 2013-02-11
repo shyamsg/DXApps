@@ -1,0 +1,39 @@
+{
+  "name": "PSMCFa_converter",
+  "title": "PSMC fasta converter",
+  "summary": "Converts a pair of consensus fasta files to a psmc fasta file.",
+  "dxapi": "1.0.0",
+  "version": "0.0.1",
+  "inputSpec": [
+    {
+      "name": "file1",
+      "label": "First consensus file",
+      "class": "file",
+      "optional": false
+    },
+    {
+      "name": "file2",
+      "label": "Second consensus file",
+      "class": "file",
+      "optional": false
+    },
+    {
+      "name": "outname",
+      "label": "Output file name",
+      "class": "string",
+      "optional": false
+    }
+  ],
+  "outputSpec": [
+    {
+      "name": "psmcfa",
+      "label": "Output PSMC fasta file",
+      "class": "file",
+      "optional": false
+    }
+  ],
+  "runSpec": {
+    "interpreter": "python2.7",
+    "file": "src/PSMCFa_converter.py"
+  }
+}

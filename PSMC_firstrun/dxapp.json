@@ -1,0 +1,32 @@
+{
+  "name": "PSMC_firstrun",
+  "title": "First run of PSMC",
+  "summary": "PSMC first run",
+  "dxapi": "1.0.0",
+  "version": "0.0.1",
+  "inputSpec": [
+    {
+      "name": "psmcfa",
+      "label": "Input psmc fasta file",
+      "class": "file",
+      "optional": false
+    },
+    {
+      "name": "outname",
+      "label": "Output psmc file name",
+      "class": "string",
+      "optional": false
+    }
+  ],
+  "outputSpec": [
+    {
+      "name": "outfile",
+      "label": "Output file",
+      "class": "file"
+    }
+  ],
+  "runSpec": {
+    "interpreter": "python2.7",
+    "file": "src/PSMC_firstrun.py"
+  }
+}
