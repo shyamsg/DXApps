@@ -1,0 +1,44 @@
+{
+  "name": "PSMC_recal",
+  "title": "PSMC_recal",
+  "summary": "Linear recalibration rerun of PSMC",
+  "dxapi": "1.0.0",
+  "version": "0.0.1",
+  "inputSpec": [
+    {
+      "name": "psmcfa",
+      "label": "PSMC filename",
+      "class": "file",
+      "optional": false
+    },
+    {
+      "name": "outname",
+      "label": "Output filename",
+      "class": "string",
+      "optional": false
+    },
+    {
+      "name": "timemax",
+      "label": "Maximum PSMC time after recalibration",
+      "class": "float",
+      "optional": false
+    },
+    {
+      "name": "parfile",
+      "label": "Recalibrated paramter filename",
+      "class": "file",
+      "optional": false
+    }
+  ],
+  "outputSpec": [
+    {
+      "name": "outfile",
+      "label": "Output PSMC file",
+      "class": "file"
+    }
+  ],
+  "runSpec": {
+    "interpreter": "python2.7",
+    "file": "src/PSMC_recal.py"
+  }
+}
