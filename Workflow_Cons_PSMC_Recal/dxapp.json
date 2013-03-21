@@ -1,0 +1,44 @@
+{
+  "name": "Workflow_Cons_PSMC_Recal",
+  "title": "PSMC Workflow",
+  "summary": "Convert consensus sequences to psmcfa and run the commands",
+  "dxapi": "1.0.0",
+  "version": "0.0.1",
+  "inputSpec": [
+    {
+      "name": "first_consensus",
+      "label": "First consensus file",
+      "class": "file",
+      "optional": false
+    },
+    {
+      "name": "second_consensus",
+      "label": "Second consensus file",
+      "class": "file",
+      "optional": false
+    },
+    {
+      "name": "window",
+      "label": "PSMC window size",
+      "class": "int",
+      "optional": false
+    },
+    {
+      "name": "outfile_name",
+      "label": "Output filename",
+      "class": "string",
+      "optional": false
+    }
+  ],
+  "outputSpec": [
+    {
+      "name": "outpsmcfile",
+      "label": "Output PSMC filename",
+      "class": "file"
+    }
+  ],
+  "runSpec": {
+    "interpreter": "python2.7",
+    "file": "src/Workflow_Cons_PSMC_Recal.py"
+  }
+}
