@@ -7,6 +7,12 @@
   "inputSpec": [
     {
       "name": "psmcfa",
+      "label": "PSMC fasta filename",
+      "class": "file",
+      "optional": false
+    },
+    {
+      "name": "psmc",
       "label": "PSMC filename",
       "class": "file",
       "optional": false
@@ -18,15 +24,22 @@
       "optional": false
     },
     {
+      "name": "xchr",
+      "label": "Is this X chromosome or not?",
+      "class": "boolean",
+      "default": true,
+      "optional": false
+    },
+    {
       "name": "timemax",
-      "label": "Maximum PSMC time after recalibration",
+      "label": "Maximum time in years (usually 7.5e6)",
       "class": "float",
       "optional": false
     },
     {
-      "name": "parfile",
-      "label": "Recalibrated paramter filename",
-      "class": "file",
+      "name": "window",
+      "label": "Skip parameter for PSMCfa",
+      "class": "int",
       "optional": false
     }
   ],
