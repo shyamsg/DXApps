@@ -12,12 +12,13 @@
 #
 # DNAnexus Python Bindings (dxpy) documentation:
 #   http://autodoc.dnanexus.com/bindings/python/current/
+# DGWBlqwltsFQmsOpkDSIuoC950Kvsiuo
 
 import os
 import dxpy
 
 @dxpy.entry_point("postprocess")
-def postprocess(input2):
+def postprocess(files1, files2):
     # Change the following to process whatever input this stage
     # receives.  You may also want to copy and paste the logic to download
     # and upload files here as well if this stage receives file input
@@ -25,24 +26,16 @@ def postprocess(input2):
 
 #    for output in process_outputs:
 #    pass
-    print input2
-    return { "answer": "placeholder value" }
-
-@dxpy.entry_point("process")
-def process(input1):
-    # Change the following to process whatever input this stage
-    # receives.  You may also want to copy and paste the logic to download
-    # and upload files here as well if this stage receives file input
-    # and/or makes file output.
-    psmc20_id = 'project-B53fX06gYqYbb6B87kgQ0007' #dxpy.find_one_project(more_ok=False, name="PSMC_20")['id']
-    applets = {}
-    for applet in dxpy.find_data_objects(name='PSMC', name_mode='regexp', project=psmc20_id, return_handler=True):
-        name = applet.describe()['name']
-        applets[name] = applet
-    print applets['PSMCFa_Conv_20'].describe()
-    dxjob1 = applets['PSMCFa_Conv_20'].run(applet_input=input1, project=psmc20_id, folder='/psmcfa')
-    
-    return { "output": "placeholder value" }
+    f1s = []
+    cnt = 0
+    for i in files1:
+        tempf1 = dxpy.DXFile(files1[i])
+        print tempf1.get_id()
+        f1hand = dxpy.download_dxfile(tempf1.get_id(), i)
+        a = dxpy.upload_local_file(i, folder="/psmcfa", project='project-B53fX06gYqYbb6B87kgQ0007')
+        f1s.append(a.dxlink(files1[i]))
+        cnt += 1
+    return { "f1s": f1s }
 
 @dxpy.entry_point("main")
 def main(pop1, pop2):
@@ -68,18 +61,18 @@ def main(pop1, pop2):
             files2[name] = id
     if len(files2) == 0 and pop1 != pop2:
         return {}
-    app1jobs = []
+    app1jobs = {}
     if len(files2) == 0:
         #Single population processing
         subjobs = []
         fn1sort = files1.keys()
         fn1sort.sort()
         for i in range(1):#len(fn1sort)):
-            for j in range(1, 2):#len(fn1sort)):
-                outname = pop1+'.'+str(i+1)+'.'+pop1+str(j+1)+'.psmcfa'
+            for j in range(1, 2):#range(i+1,len(fn1sort)):
+                outname = pop1+'.'+str(i+1)+'.'+pop1+'.'+str(j+1)+'.psmcfa'
                 applet_in = { "file1": dxpy.dxlink(files1[fn1sort[i]]), "file2": dxpy.dxlink(files1[fn1sort[j]]), "skip":20, "outname":outname }
-                aj = applets['PSMCFa_Conv_20'].run(applet_input=applet_in, project=psmc20_id, folder='/psmcfa')
-                app1jobs.append(aj)
+                aj = applets['PSMCFa_Conv_20'].run(applet_input=applet_in, project=psmc20_id)
+                app1jobs[outname] = aj
     elif len(files2) > 0:
         subjobs = []
         fn1sort = files1.keys()
@@ -88,10 +81,18 @@ def main(pop1, pop2):
         fn2sort.sort()
         for i in range(len(fn1sort)):
             for j in range(len(fn2sort)):
-                outname = pop1+'.'+str(i+1)+'.'+pop2+str(j+1)+'.psmcfa'
+                outname = pop1+'.'+str(i+1)+'.'+pop2+'.'+str(j+1)+'.psmcfa'
                 applet_in = { "file1": files1[fn1sort[i+1]], "file2": files2[fn2sort[j]], "skip":20, "outname":outname }
-                aj = applets['PSMCFa_Conv_20'].run(applet_input=applet_in, project=psmc20_id, folder='/psmcfa')
-                app1jobs.append(aj)
+                aj = applets['PSMCFa_Conv_20'].run(applet_input=applet_in, project=psmc20_id)
+                app1jobs[outname] = aj
+
+    for job in app1jobs.keys():
+        print job
+        print app1jobs[job]
+        print(app1jobs[job].describe())
+        print app1jobs[job].get_output_ref("psmcfa")
+#        print app1jobs[job].get_output_ref("psmcfa").describe()
+
     # The following line creates the job that will perform the
     # "postprocess" step of your app.  We've given it an input field
     # that is a list of job-based object references created from the
@@ -111,8 +112,10 @@ def main(pop1, pop2):
     # completeness, though it is unnecessary if you are providing
     # job-based object references in the input that refer to the same
     # set of jobs.
-
-#    postprocess_job = dxpy.new_dxjob(fn_input={"input2":2}, fn_name="postprocess", depends_on=subjobs)
+    of1 = {}
+    for j in app1jobs:
+        of1[j] = app1jobs[j].get_output_ref("psmcfa")
+    postprocess_job = dxpy.new_dxjob(fn_input={"files1":of1, "files2":[]}, fn_name="postprocess")
 
     # If you would like to include any of the output fields from the
     # postprocess_job as the output of your app, you should return it

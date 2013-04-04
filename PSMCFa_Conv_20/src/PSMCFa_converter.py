@@ -94,6 +94,7 @@ def main(file1, file2, skip, outname):
 
     numWindows = int(ceil((thisEnd - thisStart)/skip))
     numTotWin = int(ceil((155260557-59996)/skip))
+    numTotWin = 1000
 
     curStart = 59996
     faStr = ''
