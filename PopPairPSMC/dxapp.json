@@ -1,0 +1,26 @@
+{
+  "name": "PopPairPSMC",
+  "title": "Population pair PSMC",
+  "summary": "Run PSMC fa + 2 runs of psmc for each pair of inds in the pair of populations.",
+  "dxapi": "1.0.0",
+  "version": "0.0.1",
+  "inputSpec": [
+    {
+      "name": "pop1",
+      "label": "Population 1 name",
+      "class": "string",
+      "optional": false
+    },
+    {
+      "name": "pop2",
+      "label": "Population 2 name",
+      "class": "string",
+      "optional": false
+    }
+  ],
+  "outputSpec": [],
+  "runSpec": {
+    "interpreter": "python2.7",
+    "file": "src/PopPairPSMC.py"
+  }
+}
