@@ -1,0 +1,76 @@
+{
+  "name": "PSMC-pipeline",
+  "title": "PSMC pipeline",
+  "summary": "Create a linear calibrated PSMC output from consensus sequences for 2 samples",
+  "dxapi": "1.0.0",
+  "version": "0.0.1",
+  "inputSpec": [
+    {
+      "name": "cons1",
+      "label": "Consensus sequence file 1",
+      "class": "file",
+      "optional": false
+    },
+    {
+      "name": "cons2",
+      "label": "Consensus sequence file 2",
+      "class": "file",
+      "optional": false
+    },
+    {
+      "name": "outroot",
+      "label": "Output root filename",
+      "class": "string",
+      "optional": false
+    },
+    {
+      "name": "xchr",
+      "label": "Is X-chromosome?",
+      "class": "boolean",
+      "optional": true,
+      "default": true
+    },
+    {
+      "name": "recalnums",
+      "label": "Number of recal runs",
+      "class": "int",
+      "optional": true,
+      "default": 1
+    },
+    {
+      "name": "skip",
+      "label": "Window size",
+      "class": "int",
+      "optional": true,
+      "default": 20
+    },
+    {
+      "name": "timemax",
+      "label": "Maximum time in years",
+      "class": "float",
+      "optional": true,
+      "default": 7500000.0
+    }
+  ],
+  "outputSpec": [
+    {
+      "name": "outfile1",
+      "label": "PSMC fasta file",
+      "class": "file"
+    },
+    {
+      "name": "outfile2",
+      "label": "Recalibrated linear PSMC file",
+      "class": "file"
+    }
+  ],
+  "runSpec": {
+    "interpreter": "python2.7",
+    "file": "src/PSMC-pipeline.py",
+    "execDepends":  [
+      {
+        "name": "python-numpy"
+      }
+    ]
+  }
+}

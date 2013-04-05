@@ -17,26 +17,6 @@
 import os
 import dxpy
 
-@dxpy.entry_point("postprocess")
-def postprocess(files1, files2):
-    # Change the following to process whatever input this stage
-    # receives.  You may also want to copy and paste the logic to download
-    # and upload files here as well if this stage receives file input
-    # and/or makes file output.
-
-#    for output in process_outputs:
-#    pass
-    f1s = []
-    cnt = 0
-    for i in files1:
-        tempf1 = dxpy.DXFile(files1[i])
-        print tempf1.get_id()
-        f1hand = dxpy.download_dxfile(tempf1.get_id(), i)
-        a = dxpy.upload_local_file(i, folder="/psmcfa", project='project-B53fX06gYqYbb6B87kgQ0007')
-        f1s.append(a.dxlink(files1[i]))
-        cnt += 1
-    return { "f1s": f1s }
-
 @dxpy.entry_point("main")
 def main(pop1, pop2):
     # Split your work into parallel tasks.  As an example, the
@@ -44,10 +24,7 @@ def main(pop1, pop2):
     # input.
     psmc20_id = 'project-B53fX06gYqYbb6B87kgQ0007' #Dxpy.find_one_project(zero_ok=True, more_ok=False, name="PSMC_20")['id']
     print psmc20_id, dxpy.WORKSPACE_ID
-    applets = {}
-    for applet in dxpy.find_data_objects(name='PSMC', name_mode='regexp', project=psmc20_id, return_handler=True):
-        name = applet.describe()['name']
-        applets[name] = applet
+    pipeline = dxpy.find_one_data_object(name='PSMC-pipeline', name_mode='regexp', project=psmc20_id, return_handler=True)
     files1 = {}
     for result in dxpy.find_data_objects(name=pop1, name_mode='regexp', classname='file', project=psmc20_id):
         id = result['id']
@@ -61,9 +38,7 @@ def main(pop1, pop2):
             files2[name] = id
     if len(files2) == 0 and pop1 != pop2:
         return {}
-    app1jobs = {}
-    app2jobs = {}
-    app3jobs = {}
+    appjobs = []
     if len(files2) == 0:
         #Single population processing
         subjobs = []
@@ -71,18 +46,9 @@ def main(pop1, pop2):
         fn1sort.sort()
         for i in range(1):#len(fn1sort)):
             for j in range(1, 2):#range(i+1,len(fn1sort)):
-                outname = str(pop1+'.'+str(i+1)+'.'+pop1+'.'+str(j+1)+'.psmcfa')
-                applet_in = { "file1": dxpy.dxlink(files1[fn1sort[i]]), "file2": dxpy.dxlink(files1[fn1sort[j]]), "skip":20, "outname":outname }
-                aj = applets['PSMCFa_Conv_20'].run(applet_input=applet_in)
-                app1jobs[outname] = aj
-                outname = "first"+outname[0:-2]
-#                applet_in = {"psmcfa": aj.get_output_ref("psmcfa"), "outname": outname}
-#                aj2 = applets['PSMC_1strun'].run(applet_input=applet_in)
-#                app2jobs[outname] = aj2
-#                outname = outname[5:]
-#                applet_in = {"psmcfa": aj.get_output_ref("psmcfa"), "psmc":aj2.get_output_ref("outfile"), "outname": outname, "timemax": 7500000, "window": 20}
-#                aj3 = applets['PSMC_recal'].run(applet_input=applet_in)
-#                app3jobs[outname] = aj3
+                outroot = pop1+'.'+str(i+1)+'.'+pop1+'.'+str(j+1)
+                applet_in = { "cons1": dxpy.dxlink(files1[fn1sort[i]]), "cons2": dxpy.dxlink(files1[fn1sort[j]]), "outroot": outroot }
+                appjobs.append(pipeline.run(applet_input=applet_in))
     elif len(files2) > 0:
         subjobs = []
         fn1sort = files1.keys()
@@ -91,18 +57,9 @@ def main(pop1, pop2):
         fn2sort.sort()
         for i in range(len(fn1sort)):
             for j in range(len(fn2sort)):
-                outname = pop1+'.'+str(i+1)+'.'+pop2+'.'+str(j+1)+'.psmcfa'
-                applet_in = { "file1": files1[fn1sort[i+1]], "file2": files2[fn2sort[j]], "skip":20, "outname":outname }
-                aj = applets['PSMCFa_Conv_20'].run(applet_input=applet_in, project=psmc20_id)
-                app1jobs[outname] = aj
-                outname = "first"+outname[0:-2]
-                applet_in = {"psmcfa": aj.get_output_ref("psmcfa"), "outname": outname}
-                aj2 = applets['PSMC_1strun'].run(applet_input=applet_in)
-                app2jobs[outname] = aj2
-                outname = outname[5:]
-                applet_in = {"psmcfa": aj.get_output_ref("psmcfa"), "psmc":aj2.get_output_ref("outfile"), "outname": outname, "timemax": 7500000, "window": 20}
-                aj3 = applets['PSMC_recal'].run(applet_input=applet_in)
-                app3jobs[outname] = aj3
+                outroot = pop1+'.'+str(i+1)+'.'+pop2+'.'+str(j+1)
+                applet_in = { "cons1": files1[fn1sort[i+1]], "cons2": files2[fn2sort[j]], "outroot": outroot }
+                appjobs.append(pipeline.run(applet_input=applet_in))
 
 #    for job in app1jobs.keys():
 #        print job
@@ -151,9 +108,9 @@ def main(pop1, pop2):
     # finished.
     psmcfaFiles = []
     psmcFiles = []
-    for j in app1jobs:
-        psmcfaFiles.append(app1jobs[j].get_output_ref("psmcfa"))
-        psmcFiles.append(app1jobs[j].get_output_ref("psmcfa"))
+    for job in appjobs:
+        psmcfaFiles.append(job.get_output_ref("outfile1"))
+        psmcFiles.append(job.get_output_ref("outfile2"))
     
     output = {"psmcfaFiles": psmcfaFiles, "psmcFiles": psmcFiles}
 
