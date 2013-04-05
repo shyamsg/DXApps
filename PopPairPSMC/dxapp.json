@@ -18,7 +18,18 @@
       "optional": false
     }
   ],
-  "outputSpec": [],
+  "outputSpec": [
+    {
+      "name": "psmcfaFiles",
+      "label": "PSMC fasta files",
+      "class": "array:file"
+    },
+    {
+      "name": "psmcFiles",
+      "label": "Recalibrated output files from PSMC",
+      "class": "array:file"
+    }
+  ],
   "runSpec": {
     "interpreter": "python2.7",
     "file": "src/PopPairPSMC.py"

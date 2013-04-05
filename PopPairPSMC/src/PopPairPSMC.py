@@ -62,6 +62,8 @@ def main(pop1, pop2):
     if len(files2) == 0 and pop1 != pop2:
         return {}
     app1jobs = {}
+    app2jobs = {}
+    app3jobs = {}
     if len(files2) == 0:
         #Single population processing
         subjobs = []
@@ -69,10 +71,18 @@ def main(pop1, pop2):
         fn1sort.sort()
         for i in range(1):#len(fn1sort)):
             for j in range(1, 2):#range(i+1,len(fn1sort)):
-                outname = pop1+'.'+str(i+1)+'.'+pop1+'.'+str(j+1)+'.psmcfa'
+                outname = str(pop1+'.'+str(i+1)+'.'+pop1+'.'+str(j+1)+'.psmcfa')
                 applet_in = { "file1": dxpy.dxlink(files1[fn1sort[i]]), "file2": dxpy.dxlink(files1[fn1sort[j]]), "skip":20, "outname":outname }
-                aj = applets['PSMCFa_Conv_20'].run(applet_input=applet_in, project=psmc20_id)
+                aj = applets['PSMCFa_Conv_20'].run(applet_input=applet_in)
                 app1jobs[outname] = aj
+                outname = "first"+outname[0:-2]
+#                applet_in = {"psmcfa": aj.get_output_ref("psmcfa"), "outname": outname}
+#                aj2 = applets['PSMC_1strun'].run(applet_input=applet_in)
+#                app2jobs[outname] = aj2
+#                outname = outname[5:]
+#                applet_in = {"psmcfa": aj.get_output_ref("psmcfa"), "psmc":aj2.get_output_ref("outfile"), "outname": outname, "timemax": 7500000, "window": 20}
+#                aj3 = applets['PSMC_recal'].run(applet_input=applet_in)
+#                app3jobs[outname] = aj3
     elif len(files2) > 0:
         subjobs = []
         fn1sort = files1.keys()
@@ -85,12 +95,20 @@ def main(pop1, pop2):
                 applet_in = { "file1": files1[fn1sort[i+1]], "file2": files2[fn2sort[j]], "skip":20, "outname":outname }
                 aj = applets['PSMCFa_Conv_20'].run(applet_input=applet_in, project=psmc20_id)
                 app1jobs[outname] = aj
+                outname = "first"+outname[0:-2]
+                applet_in = {"psmcfa": aj.get_output_ref("psmcfa"), "outname": outname}
+                aj2 = applets['PSMC_1strun'].run(applet_input=applet_in)
+                app2jobs[outname] = aj2
+                outname = outname[5:]
+                applet_in = {"psmcfa": aj.get_output_ref("psmcfa"), "psmc":aj2.get_output_ref("outfile"), "outname": outname, "timemax": 7500000, "window": 20}
+                aj3 = applets['PSMC_recal'].run(applet_input=applet_in)
+                app3jobs[outname] = aj3
 
-    for job in app1jobs.keys():
-        print job
-        print app1jobs[job]
-        print(app1jobs[job].describe())
-        print app1jobs[job].get_output_ref("psmcfa")
+#    for job in app1jobs.keys():
+#        print job
+#        print app1jobs[job]
+#        print(app1jobs[job].describe())
+#        print app1jobs[job].get_output_ref("psmcfa")
 #        print app1jobs[job].get_output_ref("psmcfa").describe()
 
     # The following line creates the job that will perform the
@@ -112,10 +130,10 @@ def main(pop1, pop2):
     # completeness, though it is unnecessary if you are providing
     # job-based object references in the input that refer to the same
     # set of jobs.
-    of1 = {}
-    for j in app1jobs:
-        of1[j] = app1jobs[j].get_output_ref("psmcfa")
-    postprocess_job = dxpy.new_dxjob(fn_input={"files1":of1, "files2":[]}, fn_name="postprocess")
+#    of1 = {}
+#    for j in app1jobs:
+#        of1[j] = app1jobs[j].get_output_ref("psmcfa")
+#    postprocess_job = dxpy.new_dxjob(fn_input={"files1":of1, "files2":[]}, fn_name="postprocess")
 
     # If you would like to include any of the output fields from the
     # postprocess_job as the output of your app, you should return it
@@ -131,8 +149,13 @@ def main(pop1, pop2):
     # output object is closed and will attempt to clone it out as
     # output into the parent container only after all subjobs have
     # finished.
-
-    output = {}
+    psmcfaFiles = []
+    psmcFiles = []
+    for j in app1jobs:
+        psmcfaFiles.append(app1jobs[j].get_output_ref("psmcfa"))
+        psmcFiles.append(app1jobs[j].get_output_ref("psmcfa"))
+    
+    output = {"psmcfaFiles": psmcfaFiles, "psmcFiles": psmcFiles}
 
     return output
 
