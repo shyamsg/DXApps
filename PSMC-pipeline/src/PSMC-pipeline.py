@@ -51,7 +51,7 @@ def windowElement(s1, s2, mp):
             return 'K'
     return 'T'
 
-def createPSMCfa(file1, file2, outname):
+def createPSMCfa(file1, file2, outname, skip):
     """This function creates the psmcfa file
     locally.
     """
@@ -215,7 +215,7 @@ def main(cons1, cons2, outroot, xchr=True, recalnums=1, skip=20, timemax=7500000
 
     # Fill in your application code here.
     #create the psmcfa file
-    createPSMCfa('cons1', 'cons2', outname1)
+    createPSMCfa('cons1', 'cons2', outname1, skip)
     #run psmc the first time
     subprocess.check_call(['psmc', '-t', '15', '-r', '5', '-p', "4+25*2+4+6", '-o', 'test.psmc', outname1])
     #run the recal script and run psmc again.
