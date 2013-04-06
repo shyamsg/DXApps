@@ -67,6 +67,11 @@
   "runSpec": {
     "interpreter": "python2.7",
     "file": "src/PSMC-pipeline.py",
+    "systemRequirements": {
+      "main": {
+        "instanceType": "dx_m1.xlarge"
+      }
+    },
     "execDepends":  [
       {
         "name": "python-numpy"

@@ -105,6 +105,8 @@ def createPSMCfa(file1, file2, outname, skip):
         o.write('\n')
         curStart += linesize
     o.close()
+    del faStr
+    del seq1, seq2
     return
 
 def genTR(fname):
@@ -181,7 +183,7 @@ def writeRecalFile(fname, maxtime, window, xChr):
         mu = 2.5e-8
     gtime = 25
     tmax_orig = maxtime/(2e4*gtime)
-    (pattern, ntot, nfree, thetas, rhos, Ls, fnames) = genTR(fname)
+    (pattern, ntot, nfree, thetas, rhos, Ls) = genTR(fname)
     tmaxNew = 4*maxtime*window*mu/(2*gtime*thetas)
     fntemp = fname+'.temp2.pars'
     outf = open(fntemp, 'w')
