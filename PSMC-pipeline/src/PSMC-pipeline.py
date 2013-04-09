@@ -220,13 +220,16 @@ def main(cons1, cons2, outroot, xchr=True, recalnums=1, skip=20, timemax=7500000
     createPSMCfa('cons1', 'cons2', outname1, skip)
     #run psmc the first time
     subprocess.check_call(['psmc', '-t', '15', '-r', '5', '-p', "4+25*2+4+6", '-o', 'test.psmc', outname1])
+    print 'Done with first run of PSMC'
     #run the recal script and run psmc again.
     while (recalnums > 1):
         (tmaxNew, parfile) = writeRecalFile('test.psmc', timemax, skip, xchr)
         subprocess.check_call(['psmc', '-t', str(round(tmaxNew,4)), '-i', parfile, '-o', 'test.psmc', outname1])
         recalnums -= 1
+        print 'Recals left', recalnums
     (tmaxNew, parfile) = writeRecalFile('test.psmc', timemax, skip, xchr)
     subprocess.check_call(['psmc', '-t', str(round(tmaxNew,4)), '-i', parfile, '-o', outname2, outname1])
+    print 'Finished final recalibration run'
 
     # The following line(s) use the Python bindings to upload your file outputs
     # after you have created them on the local file system.  It assumes that you
