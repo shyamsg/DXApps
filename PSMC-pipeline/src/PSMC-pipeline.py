@@ -57,7 +57,7 @@ def windowElement(s1, s2, mp):
     """
     missLim = floor(mp*len(s1))
     for i, j in zip(s1, s2):
-        if (i == 'N' or j == 'N' or (start in probsites)):
+        if (i == 'N' or j == 'N'):
             missLim -= 1
             if (missLim < 0):
                 return 'N'
@@ -104,6 +104,7 @@ def createPSMCfa(file1, file2, outname, skip):
     for ps in probsites:
         seq1[ps] = 'N'
         seq2[ps] = 'N'
+    del probsites
 
     numWindows = int(ceil((thisEnd - thisStart)/skip))
     numTotWin = int(ceil((155260557-MINPOS)/skip))
