@@ -18,15 +18,29 @@ import subprocess
 import re
 from math import ceil, floor
 import gzip
+import pickle
 import numpy as np
+
+MINPOS = 2700025
+LINEWD = 60
+PROBPICK = '/usr/data/problemSites.pck'
 
 def loadSeq(filename):
     """This loades the sequence from the consensus file.
     """
     f = gzip.open(filename, 'rb')
-    line = f.readline()
-    line = line.strip()
-    mystart = int(line[1:])
+    for line in:
+        line = line.strip()
+        if line == '': continue
+        if line[0] == '>':
+            curPos = int(line[1:])
+            if (curPos + LINEWD) > MINPOS:
+                reached = True
+                continue
+        elif reached:
+            print filename, line
+            f.seek((MINPOS-curPos-LINEWD-1),os.SEEK_CUR)
+        else: continue
     seq = ''
     for line in f:
         line = line.strip()
@@ -34,7 +48,7 @@ def loadSeq(filename):
         if line[0] == '>': continue
         seq += line
     f.close()
-    return (mystart, seq)
+    return (MINPOS, seq)
 
 def windowElement(s1, s2, mp):
     """This computes the window element 
@@ -43,12 +57,13 @@ def windowElement(s1, s2, mp):
     """
     missLim = floor(mp*len(s1))
     for i, j in zip(s1, s2):
-        if (i == 'N' or j == 'N'):
+        if (i == 'N' or j == 'N' or (start in probsites)):
             missLim -= 1
             if (missLim < 0):
                 return 'N'
         elif i != j:
             return 'K'
+        start += 1
     return 'T'
 
 def createPSMCfa(file1, file2, outname, skip):
@@ -61,9 +76,8 @@ def createPSMCfa(file1, file2, outname, skip):
     (st2, seq2) = loadSeq(file2)
     print 'Loaded sequence 2'
     print outname
-
+    
     miss = 0.05
-
     thisStart = st1
     if(st1 < st2):
         seq1 = seq1[(st2-st1):]
@@ -82,10 +96,19 @@ def createPSMCfa(file1, file2, outname, skip):
     else:
         thisEnd += len(seq1)
 
-    numWindows = int(ceil((thisEnd - thisStart)/skip))
-    numTotWin = int(ceil((155260557-59996)/skip))
+    pf = open(PROBPICK)
+    probsites = pickle.load(pf)
+    pf.close()
+    probsites = np.array(probsites)
+    probsites = probsites[np.sum(probsites<thisStart):-np.sum(probsites > thisEnd)]
+    for ps in probsites:
+        seq1[ps] = 'N'
+        seq2[ps] = 'N'
 
-    curStart = 59996
+    numWindows = int(ceil((thisEnd - thisStart)/skip))
+    numTotWin = int(ceil((155260557-MINPOS)/skip))
+
+    curStart = MINPOS
     faStr = ''
     for i in xrange(numTotWin):
         if curStart < thisStart:
@@ -95,7 +118,6 @@ def createPSMCfa(file1, file2, outname, skip):
         else:
             faStr += windowElement(seq1[curStart-thisStart:curStart-thisStart+skip], seq2[curStart-thisStart:curStart-thisStart+skip], miss)
         curStart += skip
-
     linesize = 100
     o = open(outname, 'w')
     o.write('>\n')
