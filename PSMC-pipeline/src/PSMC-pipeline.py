@@ -29,7 +29,8 @@ def loadSeq(filename):
     """This loades the sequence from the consensus file.
     """
     f = gzip.open(filename, 'rb')
-    for line in:
+    reached = False
+    for line in f:
         line = line.strip()
         if line == '': continue
         if line[0] == '>':
@@ -40,6 +41,7 @@ def loadSeq(filename):
         elif reached:
             print filename, line
             f.seek((MINPOS-curPos-LINEWD-1),os.SEEK_CUR)
+            break
         else: continue
     seq = ''
     for line in f:
@@ -102,8 +104,8 @@ def createPSMCfa(file1, file2, outname, skip):
     probsites = np.array(probsites)
     probsites = probsites[np.sum(probsites<thisStart):-np.sum(probsites > thisEnd)]
     for ps in probsites:
-        seq1[ps] = 'N'
-        seq2[ps] = 'N'
+        seq1 = seq1[0:ps]+'N'+seq1[(ps+1):]
+        seq2 = seq2[0:ps]+'N'+seq2[(ps+1):]
     del probsites
 
     numWindows = int(ceil((thisEnd - thisStart)/skip))
@@ -241,9 +243,10 @@ def main(cons1, cons2, outroot, xchr=True, recalnums=1, skip=20, timemax=7500000
     # Fill in your application code here.
     #create the psmcfa file
     createPSMCfa('cons1', 'cons2', outname1, skip)
+    print 'Generated the PSMC fasta file.'
     #run psmc the first time
     subprocess.check_call(['psmc', '-t', '15', '-r', '5', '-p', "4+25*2+4+6", '-o', 'test.psmc', outname1])
-    print 'Done with first run of PSMC'
+    print 'Done with first run of PSMC.'
     #run the recal script and run psmc again.
     while (recalnums > 1):
         (tmaxNew, parfile) = writeRecalFile('test.psmc', timemax, skip, xchr)
@@ -252,7 +255,7 @@ def main(cons1, cons2, outroot, xchr=True, recalnums=1, skip=20, timemax=7500000
         print 'Recals left', recalnums
     (tmaxNew, parfile) = writeRecalFile('test.psmc', timemax, skip, xchr)
     subprocess.check_call(['psmc', '-t', str(round(tmaxNew,4)), '-i', parfile, '-o', outname2, outname1])
-    print 'Finished final recalibration run'
+    print 'Finished final recalibration run.'
 
     # The following line(s) use the Python bindings to upload your file outputs
     # after you have created them on the local file system.  It assumes that you
