@@ -103,10 +103,30 @@ def createPSMCfa(file1, file2, outname, skip):
     pf.close()
     probsites = np.array(probsites)
     probsites = probsites[np.sum(probsites<thisStart):-np.sum(probsites > thisEnd)]
-    for ps in probsites:
-        seq1 = seq1[0:ps]+'N'+seq1[(ps+1):]
-        seq2 = seq2[0:ps]+'N'+seq2[(ps+1):]
+    probsites = probsites - thisStart
+    probsites[0] = 0
+    print 'Done loading probsites'
+    sys.stdout.flush()
+    seq1 = np.array(list(seq1))
+    print 'Converted seq1 to array'
+    sys.stdout.flush()
+    seq2 = np.array(list(seq2))
+    print 'Converted seq2 to array'
+    sys.stdout.flush()
+    seq1[probsites] = 'N'
+    print 'Changed probsites to N seq1'
+    sys.stdout.flush()
+    seq2[probsites] = 'N'
+    print 'Changed probsites to N seq2'
+    sys.stdout.flush()
     del probsites
+    seq1 = ''.join(seq1)
+    print 'Got seq1 back'
+    sys.stdout.flush()
+    seq2 = ''.join(seq2)
+    print 'Got seq2 back'
+    print 'Done dealing with probsites'
+    sys.stdout.flush()
 
     numWindows = int(ceil((thisEnd - thisStart)/skip))
     numTotWin = int(ceil((155260557-MINPOS)/skip))
@@ -244,15 +264,18 @@ def main(cons1, cons2, outroot, xchr=True, recalnums=1, skip=20, timemax=7500000
     #create the psmcfa file
     createPSMCfa('cons1', 'cons2', outname1, skip)
     print 'Generated the PSMC fasta file.'
+    sys.stdout.flush()
     #run psmc the first time
     subprocess.check_call(['psmc', '-t', '15', '-r', '5', '-p', "4+25*2+4+6", '-o', 'test.psmc', outname1])
     print 'Done with first run of PSMC.'
+    sys.stdout.flush()
     #run the recal script and run psmc again.
     while (recalnums > 1):
         (tmaxNew, parfile) = writeRecalFile('test.psmc', timemax, skip, xchr)
         subprocess.check_call(['psmc', '-t', str(round(tmaxNew,4)), '-i', parfile, '-o', 'test.psmc', outname1])
         recalnums -= 1
         print 'Recals left', recalnums
+        sys.stdout.flush()
     (tmaxNew, parfile) = writeRecalFile('test.psmc', timemax, skip, xchr)
     subprocess.check_call(['psmc', '-t', str(round(tmaxNew,4)), '-i', parfile, '-o', outname2, outname1])
     print 'Finished final recalibration run.'
