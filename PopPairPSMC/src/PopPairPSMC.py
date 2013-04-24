@@ -18,7 +18,7 @@ import os
 import dxpy
 
 @dxpy.entry_point("main")
-def main(pop1, pop2):
+def main(pop1, pop2, skip=30, recals=2):
     # Split your work into parallel tasks.  As an example, the
     # following generates 10 subjobs running with the same dummy
     # input.
@@ -44,10 +44,10 @@ def main(pop1, pop2):
         subjobs = []
         fn1sort = files1.keys()
         fn1sort.sort()
-        for i in range(1):#len(fn1sort)):
-            for j in range(1, 2):#range(i+1,len(fn1sort)):
+        for i in range(len(fn1sort)):
+            for j in range(i+1,len(fn1sort)):
                 outroot = pop1+'.'+str(i+1)+'.'+pop1+'.'+str(j+1)
-                applet_in = { "cons1": dxpy.dxlink(files1[fn1sort[i]]), "cons2": dxpy.dxlink(files1[fn1sort[j]]), "outroot": outroot }
+                applet_in = { "cons1": dxpy.dxlink(files1[fn1sort[i]]), "cons2": dxpy.dxlink(files1[fn1sort[j]]), "outroot": outroot, "skip":skip, "recalnums":recals}
                 appjobs.append(pipeline.run(applet_input=applet_in))
     elif len(files2) > 0:
         subjobs = []
@@ -58,7 +58,7 @@ def main(pop1, pop2):
         for i in range(len(fn1sort)):
             for j in range(len(fn2sort)):
                 outroot = pop1+'.'+str(i+1)+'.'+pop2+'.'+str(j+1)
-                applet_in = { "cons1": files1[fn1sort[i+1]], "cons2": files2[fn2sort[j]], "outroot": outroot }
+                applet_in = { "cons1": dxpy.dxlink(files1[fn1sort[i]]), "cons2": dxpy.dxlink(files2[fn2sort[j]]), "outroot": outroot, "skip":skip, "recalnums":recals}
                 appjobs.append(pipeline.run(applet_input=applet_in))
 
 #    for job in app1jobs.keys():

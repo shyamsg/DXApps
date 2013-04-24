@@ -16,6 +16,20 @@
       "label": "Population 2 name",
       "class": "string",
       "optional": false
+    },
+    {
+      "name": "skip",
+      "label": "Window size for data prep",
+      "class": "int",
+      "optional": true,
+      "default": 30
+    },
+    {
+      "name": "recals",
+      "label": "Number of recalibration runs of PSMC",
+      "class": "int",
+      "optional": true,
+      "default": 2
     }
   ],
   "outputSpec": [

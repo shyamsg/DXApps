@@ -23,7 +23,7 @@ import numpy as np
 
 MINPOS = 2700025
 LINEWD = 60
-PROBPICK = '/usr/data/problemSites.pck'
+PROBPICK = 'resources/usr/data/problemSites.pck'
 
 def loadSeq(filename):
     """This loades the sequence from the consensus file.
@@ -58,14 +58,14 @@ def windowElement(s1, s2, mp):
     tolerated
     """
     missLim = floor(mp*len(s1))
+    bases = ['A', 'C', 'G', 'T']
     for i, j in zip(s1, s2):
-        if (i == 'N' or j == 'N'):
+        if (i == 'N' or j == 'N' or i not in bases or j not in bases):
             missLim -= 1
             if (missLim < 0):
                 return 'N'
         elif i != j:
             return 'K'
-        start += 1
     return 'T'
 
 def createPSMCfa(file1, file2, outname, skip):
@@ -104,7 +104,7 @@ def createPSMCfa(file1, file2, outname, skip):
     probsites = np.array(probsites)
     probsites = probsites[np.sum(probsites<thisStart):-np.sum(probsites > thisEnd)]
     probsites = probsites - thisStart
-    probsites[0] = 0
+#    probsites[0] = 0
     print 'Done loading probsites'
     sys.stdout.flush()
     seq1 = np.array(list(seq1))
@@ -120,11 +120,11 @@ def createPSMCfa(file1, file2, outname, skip):
     print 'Changed probsites to N seq2'
     sys.stdout.flush()
     del probsites
-    seq1 = ''.join(seq1)
-    print 'Got seq1 back'
-    sys.stdout.flush()
-    seq2 = ''.join(seq2)
-    print 'Got seq2 back'
+#    seq1 = ''.join(seq1)
+#    print 'Got seq1 back'
+#    sys.stdout.flush()
+#    seq2 = ''.join(seq2)
+#    print 'Got seq2 back'
     print 'Done dealing with probsites'
     sys.stdout.flush()
 
@@ -141,6 +141,8 @@ def createPSMCfa(file1, file2, outname, skip):
         else:
             faStr += windowElement(seq1[curStart-thisStart:curStart-thisStart+skip], seq2[curStart-thisStart:curStart-thisStart+skip], miss)
         curStart += skip
+        if (curStart % 100000 == 0):
+            print curStart
     linesize = 100
     o = open(outname, 'w')
     o.write('>\n')
