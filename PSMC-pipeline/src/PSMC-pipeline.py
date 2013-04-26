@@ -23,7 +23,7 @@ import numpy as np
 
 MINPOS = 2700025
 LINEWD = 60
-PROBPICK = 'resources/usr/data/problemSites.pck'
+PROBPICK = '/usr/data/problemSites.pck'
 
 def loadSeq(filename):
     """This loades the sequence from the consensus file.
@@ -60,7 +60,7 @@ def windowElement(s1, s2, mp):
     missLim = floor(mp*len(s1))
     bases = ['A', 'C', 'G', 'T']
     for i, j in zip(s1, s2):
-        if (i == 'N' or j == 'N' or i not in bases or j not in bases):
+        if (i not in bases or j not in bases):
             missLim -= 1
             if (missLim < 0):
                 return 'N'
@@ -104,6 +104,11 @@ def createPSMCfa(file1, file2, outname, skip):
     probsites = np.array(probsites)
     probsites = probsites[np.sum(probsites<thisStart):-np.sum(probsites > thisEnd)]
     probsites = probsites - thisStart
+    print len(seq1) 
+    print len(seq2)
+    print np.max(probsites)
+    probsites = probsites[0:np.sum(probsites < len(seq1))]
+    print np.max(probsites)
 #    probsites[0] = 0
     print 'Done loading probsites'
     sys.stdout.flush()
@@ -141,7 +146,7 @@ def createPSMCfa(file1, file2, outname, skip):
         else:
             faStr += windowElement(seq1[curStart-thisStart:curStart-thisStart+skip], seq2[curStart-thisStart:curStart-thisStart+skip], miss)
         curStart += skip
-        if (curStart % 100000 == 0):
+        if (curStart % 30000000 == 0):
             print curStart
     linesize = 100
     o = open(outname, 'w')
