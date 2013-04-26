@@ -23,7 +23,7 @@ import numpy as np
 
 MINPOS = 2700025
 LINEWD = 60
-PROBPICK = '/usr/data/problemSites.pck'
+PROBPICK = 'resources/usr/data/problemSites.pck'
 
 def loadSeq(filename):
     """This loades the sequence from the consensus file.
@@ -102,14 +102,13 @@ def createPSMCfa(file1, file2, outname, skip):
     probsites = pickle.load(pf)
     pf.close()
     probsites = np.array(probsites)
-    probsites = probsites[np.sum(probsites<thisStart):-np.sum(probsites > thisEnd)]
+    rara = np.sum(probsites > thisEnd)
+    if rara > 0:
+        probsites = probsites[np.sum(probsites<thisStart):-rara]
+    else:
+        probsites = probsites[np.sum(probsites<thisStart):]
     probsites = probsites - thisStart
-    print len(seq1) 
-    print len(seq2)
-    print np.max(probsites)
     probsites = probsites[0:np.sum(probsites < len(seq1))]
-    print np.max(probsites)
-#    probsites[0] = 0
     print 'Done loading probsites'
     sys.stdout.flush()
     seq1 = np.array(list(seq1))
@@ -256,14 +255,14 @@ def main(cons1, cons2, outroot, xchr=True, recalnums=1, skip=20, timemax=7500000
     # The following line(s) initialize your data object inputs on the platform
     # into dxpy.DXDataObject instances that you can start using immediately.
 
-    cons1 = dxpy.DXFile(cons1)
-    cons2 = dxpy.DXFile(cons2)
+#    cons1 = dxpy.DXFile(cons1)
+#    cons2 = dxpy.DXFile(cons2)
 
     # The following line(s) download your file inputs to the local file system
     # using variable names for the filenames.
 
-    dxpy.download_dxfile(cons1.get_id(), "cons1")
-    dxpy.download_dxfile(cons2.get_id(), "cons2")
+ #   dxpy.download_dxfile(cons1.get_id(), "cons1")
+ #   dxpy.download_dxfile(cons2.get_id(), "cons2")
     outname1 = outroot + '.psmcfa'
     outname2 = outroot + '.psmc'
 
