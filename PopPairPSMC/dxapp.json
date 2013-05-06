@@ -22,7 +22,7 @@
       "label": "Window size for data prep",
       "class": "int",
       "optional": true,
-      "default": 30
+      "default": 25
     },
     {
       "name": "recals",

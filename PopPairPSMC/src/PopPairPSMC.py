@@ -18,21 +18,21 @@ import os
 import dxpy
 
 @dxpy.entry_point("main")
-def main(pop1, pop2, skip=30, recals=2):
+def main(pop1, pop2, skip=25, recals=2):
     # Split your work into parallel tasks.  As an example, the
     # following generates 10 subjobs running with the same dummy
     # input.
     psmc20_id = 'project-B53fX06gYqYbb6B87kgQ0007' #Dxpy.find_one_project(zero_ok=True, more_ok=False, name="PSMC_20")['id']
-    print psmc20_id, dxpy.WORKSPACE_ID
+#    print psmc20_id, dxpy.WORKSPACE_ID
     pipeline = dxpy.find_one_data_object(name='PSMC-pipeline', name_mode='regexp', project=psmc20_id, return_handler=True)
     files1 = {}
-    for result in dxpy.find_data_objects(name=pop1, name_mode='regexp', classname='file', project=psmc20_id):
+    for result in dxpy.find_data_objects(name=pop1, name_mode='regexp', classname='file', folder='/ConsensusSequences', project=psmc20_id):
         id = result['id']
         name = dxpy.describe(id)['name']
         files1[name] = id
     files2 = {}
     if (pop1 != pop2):
-        for result in dxpy.find_data_objects(name=pop2, name_mode='regexp', classname='file', project=psmc20_id):
+        for result in dxpy.find_data_objects(name=pop2, name_mode='regexp', classname='file', folder='/ConsensusSequences', project=psmc20_id):
             id = result['id']
             name = dxpy.describe(id)['name']
             files2[name] = id
@@ -48,7 +48,8 @@ def main(pop1, pop2, skip=30, recals=2):
             for j in range(i+1,len(fn1sort)):
                 outroot = pop1+'.'+str(i+1)+'.'+pop1+'.'+str(j+1)
                 applet_in = { "cons1": dxpy.dxlink(files1[fn1sort[i]]), "cons2": dxpy.dxlink(files1[fn1sort[j]]), "outroot": outroot, "skip":skip, "recalnums":recals}
-                appjobs.append(pipeline.run(applet_input=applet_in))
+                #appjobs.append(pipeline.run(applet_input=applet_in))
+                print 'dx run -y --folder /psmcfa -icons1=/ConsensusSequences/'+fn1sort[i]+' -icons2=/ConsensusSequences/'+fn1sort[j]+' -ioutroot='+outroot+' -iskip='+str(skip)+' -irecalnums='+str(recals)+' PSMC-pipeline'
     elif len(files2) > 0:
         subjobs = []
         fn1sort = files1.keys()
@@ -59,7 +60,8 @@ def main(pop1, pop2, skip=30, recals=2):
             for j in range(len(fn2sort)):
                 outroot = pop1+'.'+str(i+1)+'.'+pop2+'.'+str(j+1)
                 applet_in = { "cons1": dxpy.dxlink(files1[fn1sort[i]]), "cons2": dxpy.dxlink(files2[fn2sort[j]]), "outroot": outroot, "skip":skip, "recalnums":recals}
-                appjobs.append(pipeline.run(applet_input=applet_in))
+                #appjobs.append(pipeline.run(applet_input=applet_in))
+                print 'dx run -y --folder /psmcfa -icons1=/ConsensusSequences/'+fn1sort[i]+' -icons2=/ConsensusSequences/'+fn2sort[j]+' -ioutroot='+outroot+' -iskip='+str(skip)+' -irecalnums='+str(recals)+' PSMC-pipeline'
 
 #    for job in app1jobs.keys():
 #        print job
