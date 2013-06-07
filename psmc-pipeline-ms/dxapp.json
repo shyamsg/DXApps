@@ -1,0 +1,65 @@
+{
+  "name": "psmc-pipeline-ms",
+  "title": "PSMC pipeline from ms",
+  "summary": "Create a linear calibrated PSMC output from consensus sequences for 2 samples",
+  "dxapi": "1.0.0",
+  "version": "0.0.1",
+  "inputSpec": [
+    {
+      "name": "infile",
+      "label": "Psmcfa file",
+      "class": "file",
+      "optional": false
+    },
+    {
+      "name": "outroot",
+      "label": "Output root filename",
+      "class": "string",
+      "optional": false
+    },
+    {
+      "name": "xchr",
+      "label": "Is X-chromosome?",
+      "class": "boolean",
+      "optional": true,
+      "default": false
+    },
+    {
+      "name": "recalnums",
+      "label": "Number of recal runs",
+      "class": "int",
+      "optional": true,
+      "default": 2
+    },
+    {
+      "name": "skip",
+      "label": "Window size",
+      "class": "int",
+      "optional": true,
+      "default": 100
+    },
+    {
+      "name": "timemax",
+      "label": "Maximum time in years",
+      "class": "float",
+      "optional": true,
+      "default": 7500000.0
+    }
+  ],
+  "outputSpec": [
+    {
+      "name": "outfile2",
+      "label": "Recalibrated linear PSMC file",
+      "class": "file"
+    }
+  ],
+  "runSpec": {
+    "interpreter": "python2.7",
+    "file": "src/psmc-pipeline-ms.py",
+    "execDepends":  [
+      {
+        "name": "python-numpy"
+      }
+    ]
+  }
+}
